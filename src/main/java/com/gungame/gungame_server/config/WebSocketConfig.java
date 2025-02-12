@@ -2,7 +2,7 @@ package com.gungame.gungame_server.config;/*
  * created by seokhyun on 2025-02-12.
  */
 
-import com.gungame.gungame_server.handler.GameWebSocketHandler;
+import com.gungame.gungame_server.controller.GameWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
