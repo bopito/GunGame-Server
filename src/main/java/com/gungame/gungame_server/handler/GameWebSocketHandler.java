@@ -1,8 +1,7 @@
-package com.gungame.gungame_server.handler;/*
- * created by seokhyun on 2025-02-12.
- */
+package com.gungame.gungame_server.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gungame.gungame_server.entity.Player;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -16,17 +15,30 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameWebSocketHandler extends TextWebSocketHandler {
 
     private final Map<String, WebSocketSession> players = new ConcurrentHashMap<>();
-    private final Map<String, Map<String, Integer>> playerStates = new ConcurrentHashMap<>();
+    private final Map<String, Player> playerStates = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    public GameWebSocketHandler() {
+        startGameLoop();
+    }
+
     @Override
-    public void afterConnectionEstablished(WebSocketSession client) {
-        System.out.println("Player connected: " + client.getId());
-        players.put(client.getId(), client);
-        System.out.println(players);
-        // 초기 플레이어 상태 설정
-        playerStates.put(client.getId(), Map.of("x", 100, "y", 100));
-        System.out.println(playerStates);
+    public void afterConnectionEstablished(WebSocketSession session) {
+        System.out.println("Player connected: " + session.getId());
+
+        // Ensure no duplicate players exist
+        if (playerStates.containsKey(session.getId())) {
+            System.out.println("Removing old session: " + session.getId());
+            removePlayer(session.getId());
+        }
+
+        players.put(session.getId(), session);
+
+        // Create a new Player object in memory
+        int team = (int) (Math.random() * 2) + 1;
+        Player newPlayer = new Player(team);
+        playerStates.put(session.getId(), newPlayer);
+
         broadcastGameState();
     }
 
@@ -35,42 +47,57 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         Map<String, Object> incomingMessage = objectMapper.readValue(payload, Map.class);
 
-        // 움직임(Action) 메시지 처리
-        if (incomingMessage.containsKey("direction")) {
-            handleActionMessage(session.getId(), incomingMessage);
+        Player player = playerStates.get(session.getId());
+        if (player == null) return;
+
+        if (incomingMessage.containsKey("keys")) {
+            player.setKeys((Map<String, Boolean>) incomingMessage.get("keys"));
+        }
+
+        if (incomingMessage.containsKey("angle")) {
+            player.setAngle((double) incomingMessage.get("angle"));
         }
     }
 
-    private void handleActionMessage(String playerId, Map<String, Object> message) {
-        String direction = (String) message.get("direction");
+    private void startGameLoop() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(30); // ~33 FPS
 
-        Map<String, Integer> currentState = playerStates.get(playerId);
-        int x = currentState.get("x");
-        int y = currentState.get("y");
+                    for (Player player : playerStates.values()) {
+                        updatePlayerPosition(player);
+                    }
 
-        // 방향에 따라 플레이어 위치 업데이트
-        switch (direction) {
-            case "right":
-                x += 10;
-                break;
-            case "left":
-                x -= 10;
-                break;
-            case "up":
-                y -= 10;
-                break;
-            case "down":
-                y += 10;
-                break;
-        }
+                    // Remove Disconnected Players
+                    players.entrySet().removeIf(entry -> {
+                        if (!entry.getValue().isOpen()) {
+                            removePlayer(entry.getKey());
+                            return true;
+                        }
+                        return false;
+                    });
 
-        playerStates.put(playerId, Map.of("x", x, "y", y));
-        broadcastGameState();
+                    broadcastGameState();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void updatePlayerPosition(Player player) {
+        int speed = 5;
+        Map<String, Boolean> keys = player.getKeys();
+
+        if (keys.getOrDefault("w", false)) player.setY(player.getY() - speed);
+        if (keys.getOrDefault("s", false)) player.setY(player.getY() + speed);
+        if (keys.getOrDefault("a", false)) player.setX(player.getX() - speed);
+        if (keys.getOrDefault("d", false)) player.setX(player.getX() + speed);
     }
 
     private void broadcastGameState() {
         try {
-            // 현재 상태를 모든 클라이언트에 브로드캐스트
             Map<String, Object> gameState = Map.of("players", playerStates);
             String gameStateJson = objectMapper.writeValueAsString(gameState);
 
@@ -87,8 +114,12 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         System.out.println("Player disconnected: " + session.getId());
-        players.remove(session.getId());
-        playerStates.remove(session.getId());
+        removePlayer(session.getId());
+    }
+
+    private void removePlayer(String playerId) {
+        players.remove(playerId);
+        playerStates.remove(playerId);
         broadcastGameState();
     }
 }
