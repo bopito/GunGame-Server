@@ -1,8 +1,8 @@
-package com.websocket.test_connect_websocket.config;/*
+package com.gungame.gungame_server.config;/*
  * created by seokhyun on 2025-02-12.
  */
 
-import com.websocket.test_connect_websocket.handler.GameWebSocketHandler;
+import com.gungame.gungame_server.handler.GameWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -20,7 +20,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(gameWebSocketHandler, "/game").setAllowedOrigins("*");
+        registry.addHandler(gameWebSocketHandler, "/game")
+                .setAllowedOrigins("*");
     }
 }
 

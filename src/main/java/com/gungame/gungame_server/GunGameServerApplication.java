@@ -1,13 +1,13 @@
-package com.websocket.test_connect_websocket;
+package com.gungame.gungame_server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TestConnectWebsocketApplication {
+public class GunGameServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TestConnectWebsocketApplication.class, args);
+		SpringApplication.run(GunGameServerApplication.class, args);
 	}
 
 }

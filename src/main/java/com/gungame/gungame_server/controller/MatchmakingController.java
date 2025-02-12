@@ -1,4 +1,4 @@
-package com.websocket.test_connect_websocket.controller;/*
+package com.gungame.gungame_server.controller;/*
  * created by seokhyun on 2025-02-12.
  */
 
