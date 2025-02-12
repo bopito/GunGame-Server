@@ -9,10 +9,9 @@ public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    
     private Long id;
-
-    private String playerId;
-    private String team;
+    private Integer team;
 
     // Getters and setters
 }
