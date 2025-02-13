@@ -5,6 +5,7 @@ package com.gungame.gungame_server.game;/*
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gungame.gungame_server.entity.Player;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -48,7 +49,10 @@ public class GameEngine {
 
     public void broadcastGameState() {
         try {
-            Map<String, Object> gameState = Map.of("players", sessionManager.getPlayerStates());
+            // Create a mutable ConcurrentHashMap for thread-safe operations
+            Map<String, Object> gameState = new ConcurrentHashMap<>();
+            gameState.put("players", sessionManager.getPlayerStates());
+
             String gameStateJson = objectMapper.writeValueAsString(gameState);
 
             for (WebSocketSession session : sessionManager.getSessions()) {
