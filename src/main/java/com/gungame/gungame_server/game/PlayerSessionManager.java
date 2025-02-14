@@ -29,7 +29,22 @@ public class PlayerSessionManager {
 
         players.put(session.getId(), session);
         playerStates.put(session.getId(), newPlayer);
+
+        // Send the Player ID ONLY to the newly connected player
+        try {
+            System.out.println("player added");
+            Map<String, Object> response = Map.of(
+                "type", "assign_id",  // Custom message type
+                "playerId", newPlayer.getId()
+            );
+            String json = objectMapper.writeValueAsString(response);
+            session.sendMessage(new TextMessage(json));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
+
 
     public void updatePlayerState(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
@@ -44,6 +59,7 @@ public class PlayerSessionManager {
     public void removePlayer(WebSocketSession session) {
         players.remove(session.getId());
         playerStates.remove(session.getId());
+        System.out.println("player removed");
     }
 
     public Map<String, Player> getPlayerStates() {

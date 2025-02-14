@@ -23,9 +23,10 @@ public class GameWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         // Log when a WebSocket connection is established
         System.out.println("WebSocket connection established: " + session.getId());
-
+        
         // Add a new player to the session manager and broadcast the updated game state
         sessionManager.addPlayer(session);
+        
         gameEngine.broadcastGameState();
     }
 

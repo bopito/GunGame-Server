@@ -52,7 +52,6 @@ public class GameEngine {
             // Create a mutable ConcurrentHashMap for thread-safe operations
             Map<String, Object> gameState = new ConcurrentHashMap<>();
             gameState.put("players", sessionManager.getPlayerStates());
-
             String gameStateJson = objectMapper.writeValueAsString(gameState);
 
             for (WebSocketSession session : sessionManager.getSessions()) {

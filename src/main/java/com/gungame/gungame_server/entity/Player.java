@@ -13,8 +13,8 @@ public class Player {
     public Player(int team) {
         this.id = UUID.randomUUID().toString();
         this.team = team;
-        this.x = 400;
-        this.y = 300;
+        this.x = 0;
+        this.y = 0;
         this.angle = 0;
         this.keys = Map.of("w", false, "a", false, "s", false, "d", false);
     }
