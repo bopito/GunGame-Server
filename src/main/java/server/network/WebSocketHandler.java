@@ -45,7 +45,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         System.out.println("WebSocket connection closed: " + session.getId() + " with status: " + status);
 
         // Remove player from session manager
-        sessionManager.removePlayer(session);
+        sessionManager.removeSession(session);
 
         // Broadcast updated game state after player removal
         sessionManager.broadcastGameState();

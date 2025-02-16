@@ -11,6 +11,14 @@ public class EntityManager {
     private final Map<String, Player> players = new ConcurrentHashMap<>();
     private final Map<String, Projectile> projectiles = new ConcurrentHashMap<>();
 
+
+    public void addEntity(Player player) {
+       
+            players.put(player.getId(), player);
+        
+        
+    }
+
     public void addPlayer(Player player) {
         players.put(player.getId(), player);
     }
@@ -68,12 +76,6 @@ public class EntityManager {
     // Updates player state based on client input.
     //
     public void updatePlayerState(Player player, Map<String, Object> incomingMessage) {
-        if (incomingMessage.containsKey("x")) {
-            player.setX(((Number) incomingMessage.get("x")).intValue());
-        }
-        if (incomingMessage.containsKey("y")) {
-            player.setY(((Number) incomingMessage.get("y")).intValue());
-        }
         if (incomingMessage.containsKey("angle")) {
             player.setAngle(((Number) incomingMessage.get("angle")).doubleValue());
         }
@@ -87,6 +89,6 @@ public class EntityManager {
     //
     private boolean isColliding(Player player, Projectile projectile) {
         return Math.abs(player.getX() - projectile.getX()) < 10 &&
-               Math.abs(player.getY() - projectile.getY()) < 10;
+               Math.abs(player.getZ() - projectile.getZ()) < 10;
     }
 }

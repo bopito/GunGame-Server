@@ -89,7 +89,7 @@ public class SessionManager {
     /**
      * Removes a player when they disconnect.
      */
-    public void removePlayer(WebSocketSession session) {
+    public void removeSession(WebSocketSession session) {
         Player player = entityManager.getPlayers().stream()
             .filter(p -> sessions.get(p.getId()) == session)
             .findFirst()

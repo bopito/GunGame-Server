@@ -1,5 +1,6 @@
 package server.entity;
 
+import java.util.Iterator;
 import java.util.Map;
 
 public class Player extends Entity {
@@ -8,7 +9,7 @@ public class Player extends Entity {
     private int team;
     private int score;
     private int health;
-    private float speed;
+    private int speed;
 
     public Player(int team) {
         super();
@@ -16,7 +17,7 @@ public class Player extends Entity {
         this.team = team;
         this.score = 0;
         this.health = 100;
-        this.speed = 0.1f;
+        this.speed = 1;
         
     }
 
@@ -26,9 +27,14 @@ public class Player extends Entity {
 
     @Override
     public void update() {
-        if (keys.getOrDefault("w", false)) y -= speed;
-        if (keys.getOrDefault("s", false)) y += speed;
+        if (keys.getOrDefault("w", false)) z -= speed;
+        if (keys.getOrDefault("s", false)) z += speed;
         if (keys.getOrDefault("a", false)) x -= speed;
         if (keys.getOrDefault("d", false)) x += speed;
     }
+
+    public void handleCollision(Entity otherEntity) {
+
+    }
+
 }
