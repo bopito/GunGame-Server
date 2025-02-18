@@ -27,11 +27,15 @@ public class SessionManager {
      */
     public void broadcastGameState() {
         try {
-            Map<String, Object> gameState = Map.of(
-                "players", entityManager.getPlayers(),
-                "projectiles", entityManager.getProjectiles()
-            );
-            String gameStateJson = objectMapper.writeValueAsString(gameState);
+            Map<String, Object> entities = Map.of(
+            "players", entityManager.getPlayers(),
+            "projectiles", entityManager.getProjectiles()
+            //"items", entityManager.getItems(),
+            //"walls", entityManager.getWalls()
+        );
+
+        Map<String, Object> gameState = Map.of("entities", entities);
+        String gameStateJson = objectMapper.writeValueAsString(gameState);
 
             for (WebSocketSession session : sessions.values()) {
                 if (session.isOpen()) {
@@ -48,7 +52,7 @@ public class SessionManager {
     /**
      * Adds a new player session and assigns an ID.
      */
-    public void addPlayer(WebSocketSession session) {
+    public void addSession(WebSocketSession session) {
         int team = (int) (Math.random() * 2) + 1;
         Player newPlayer = new Player(team);
 
@@ -86,25 +90,42 @@ public class SessionManager {
         }
     }
 
-    /**
-     * Removes a player when they disconnect.
-     */
+    // 
+    // Remove Session
+    //
     public void removeSession(WebSocketSession session) {
-        Player player = entityManager.getPlayers().stream()
-            .filter(p -> sessions.get(p.getId()) == session)
-            .findFirst()
-            .orElse(null);
-
-        if (player != null) {
-            entityManager.removePlayer(player.getId());
-            sessions.remove(player.getId());
-            System.out.println("Player removed: " + player.getId());
+        // Find player associated with this session
+        String playerIdToRemove = null;
+        for (Map.Entry<String, WebSocketSession> entry : sessions.entrySet()) {
+            if (entry.getValue().equals(session)) {
+                playerIdToRemove = entry.getKey();
+                break;
+            }
+        }
+    
+        if (playerIdToRemove != null) {
+            System.out.println("Removing player: " + playerIdToRemove);
+            
+            // Remove player from session and entity manager
+            sessions.remove(playerIdToRemove);
+            entityManager.removePlayer(playerIdToRemove);
+    
+            // Attempt to close WebSocket session safely
+            try {
+                if (session.isOpen()) {
+                    session.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
+    
+    
 
-    /**
-     * Returns all active WebSocket sessions.
-     */
+    //
+    // Returns all active WebSocket sessions.
+    //
     public Collection<WebSocketSession> getSessions() {
         return sessions.values();
     }

@@ -12,11 +12,13 @@ public class EntityManager {
     private final Map<String, Projectile> projectiles = new ConcurrentHashMap<>();
 
 
-    public void addEntity(Player player) {
+    public void addEntity(Entity entity) {
        
-            players.put(player.getId(), player);
-        
-        
+        /*
+        if (entity.getType() == Player)
+            players.put(entity.getId(), entity);
+        }
+        */
     }
 
     public void addPlayer(Player player) {
@@ -80,6 +82,9 @@ public class EntityManager {
             player.setAngle(((Number) incomingMessage.get("angle")).doubleValue());
         }
         if (incomingMessage.containsKey("keys")) {
+            player.setKeys((Map<String, Boolean>) incomingMessage.get("keys"));
+        }
+        if (incomingMessage.containsKey("mouse")) {
             player.setKeys((Map<String, Boolean>) incomingMessage.get("keys"));
         }
     }

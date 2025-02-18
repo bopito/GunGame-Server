@@ -10,11 +10,8 @@ public class GameEngine {
     private final SessionManager sessionManager;
 
     public GameEngine(EntityManager entityManager, SessionManager sessionManager) {
-        this.entityManager = entityManager;
-        // players
-        // itmes
-        // projectiles
         this.sessionManager = sessionManager;
+        this.entityManager = entityManager;
         startGameLoop();
     }
 
