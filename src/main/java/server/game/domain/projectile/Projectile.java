@@ -1,6 +1,7 @@
-package server.entity;
+package server.game.domain.projectile;
 
 import java.util.UUID;
+import server.game.base.Entity;
 
 public class Projectile extends Entity {
     private final String shooterId;

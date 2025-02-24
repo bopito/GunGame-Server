@@ -1,7 +1,7 @@
-package server.entity;
+package server.game.domain.player;
 
-import java.util.Iterator;
 import java.util.Map;
+import server.game.base.Entity;
 
 public class Player extends Entity {
     

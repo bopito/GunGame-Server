@@ -1,4 +1,4 @@
-package server.entity;
+package server.game.base;
 
 import java.util.UUID;
 

@@ -1,4 +1,6 @@
-package server.entity;
+package server.game.domain.item;
+
+import server.game.base.Entity;
 
 public class Item extends Entity {
     
