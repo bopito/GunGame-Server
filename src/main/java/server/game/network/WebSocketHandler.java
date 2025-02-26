@@ -1,5 +1,7 @@
 package server.game.network;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -10,6 +12,9 @@ import server.game.domain.player.PlayerManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
+import server.game.domain.skill.Skill;
+import server.game.domain.skill.SkillEffect;
+import server.game.domain.skill.effects.HealEffect;
 
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
@@ -27,9 +32,18 @@ public class WebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         System.out.println("WebSocket connection established: " + session.getId());
 
+        //just for test skill
+        Skill skill1 = new Skill("n1", 1, new HealEffect(1));
+        Skill skill2 = new Skill("n2", 2, new HealEffect(2));
+        Skill skill3 = new Skill("n3", 3, new HealEffect(3));
+
+        List<Skill> testSkills = new ArrayList<>();
+        testSkills.add(skill1);
+        testSkills.add(skill2);
+        testSkills.add(skill3);
+
         // Generate a new player and add it to the game
-        int team = (int) (Math.random() * 2) + 1;
-        Player newPlayer = new Player(team);
+        Player newPlayer = new Player(testSkills);
 
         // Ensure the player is not already in the manager
         if (playerManager.getPlayer(newPlayer.getId()) == null) {
