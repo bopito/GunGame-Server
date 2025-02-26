@@ -1,23 +1,30 @@
 package server.game.domain.weapon;
 
 import java.util.*;
+import org.springframework.stereotype.Component;
 
 /**
  * Manages weapons for the game.
  */
+@Component
 public class WeaponManager {
     private final Map<String, Weapon> weapons = new HashMap<>();
-    private final List<Weapon> droppedWeapons = new ArrayList<>(); // ✅ 맵에 떨어진 무기 목록
+    private final List<Weapon> droppedWeapons = new ArrayList<>();
+
+    // Default weapon
+    private final Weapon defaultWeapon;
 
     /**
-     * Initializes default weapons based on provided table.
+     * Initializes default weapons.
      */
     public WeaponManager() {
-        addWeapon(new Weapon("Bucket (Pistol)", 10, 1000, 100, 2.0, 0.5, 60));
-        addWeapon(new Weapon("Basket (Rifle)", 6, 1200, 150, 2.5, 0.4, 120));
-        addWeapon(new Weapon("Backpack (Sniper)", 25, 2000, 300, 3.5, 1.5, 25));
-        addWeapon(new Weapon("Luggage (Rocket)", 50, 800, 200, 4.0, 2.5, 10));
-        addWeapon(new Weapon("Toy Hammer (Knife)", 80, 0, 30, 0, 0.3, 0)); // Knife has no ammo
+        defaultWeapon = new Weapon("Pistol", 10, 1000, 100, 2.0, 0.5, 60);
+        addWeapon(defaultWeapon);
+
+        addWeapon(new Weapon("Rifle", 6, 1200, 150, 2.5, 0.4, 120));
+        addWeapon(new Weapon("Sniper", 25, 2000, 300, 3.5, 1.5, 25));
+        addWeapon(new Weapon("Rocket Launcher", 50, 800, 200, 4.0, 2.5, 10));
+        addWeapon(new Weapon("Knife", 80, 0, 30, 0, 0.3, 0)); // Melee weapon
     }
 
     public void addWeapon(Weapon weapon) {
@@ -28,29 +35,24 @@ public class WeaponManager {
         return weapons.get(id);
     }
 
+    public Weapon getDefaultWeapon() {
+        return defaultWeapon;
+    }
+
     public void removeWeapon(String id) {
         weapons.remove(id);
     }
 
-    /**
-     * Adds a dropped weapon to the map.
-     */
     public void addDroppedWeapon(Weapon weapon) {
         droppedWeapons.add(weapon);
         System.out.println("[WeaponManager] A weapon has been dropped: " + weapon.getName());
     }
 
-    /**
-     * Removes a weapon from the dropped weapons list (e.g., when picked up).
-     */
     public void removeDroppedWeapon(Weapon weapon) {
         droppedWeapons.remove(weapon);
         System.out.println("[WeaponManager] A dropped weapon has been picked up: " + weapon.getName());
     }
 
-    /**
-     * Returns a list of all dropped weapons on the map.
-     */
     public List<Weapon> getDroppedWeapons() {
         return new ArrayList<>(droppedWeapons);
     }

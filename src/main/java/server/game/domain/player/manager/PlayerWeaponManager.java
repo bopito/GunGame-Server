@@ -60,4 +60,8 @@ public class PlayerWeaponManager {
             System.out.println("[PlayerWeaponManager] " + player.getId() + " dropped previous weapon: " + oldWeapon.getName());
         });
     }
+
+    public Weapon getDefaultWeapon(){
+        return weaponManager.getDefaultWeapon();
+    }
 }
