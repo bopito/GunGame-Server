@@ -64,7 +64,9 @@ public class GameEngine {
                     "players", playerManager.getPlayers()
             );
 
-            Map<String, Object> gameState = Map.of("entities", entities);
+            Map<String, Object> gameState = Map.of(
+                    "type", "broadcast",
+                    "entities", entities);
             String gameStateJson = objectMapper.writeValueAsString(gameState);
 
             for (WebSocketSession session : sessionManager.getSessions()) {

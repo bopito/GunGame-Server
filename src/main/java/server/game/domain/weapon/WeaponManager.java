@@ -18,13 +18,13 @@ public class WeaponManager {
      * Initializes default weapons.
      */
     public WeaponManager() {
-        defaultWeapon = new Weapon("Pistol", 10, 1000, 100, 2.0, 0.5, 60);
+        defaultWeapon = new Weapon("Pistol", 10, 1000, 100, 2.0, 0.5, 12, 60); // Pistol starts with 60 reserve ammo
         addWeapon(defaultWeapon);
 
-        addWeapon(new Weapon("Rifle", 6, 1200, 150, 2.5, 0.4, 120));
-        addWeapon(new Weapon("Sniper", 25, 2000, 300, 3.5, 1.5, 25));
-        addWeapon(new Weapon("Rocket Launcher", 50, 800, 200, 4.0, 2.5, 10));
-        addWeapon(new Weapon("Knife", 80, 0, 30, 0, 0.3, 0)); // Melee weapon
+        addWeapon(new Weapon("Rifle", 6, 1200, 150, 2.5, 0.4, 30, 120)); // Rifle starts with 120 reserve ammo
+        addWeapon(new Weapon("Sniper", 25, 2000, 300, 3.5, 1.5, 5, 25)); // Sniper starts with 25 reserve ammo
+        addWeapon(new Weapon("Rocket Launcher", 50, 800, 200, 4.0, 2.5, 1, 10)); // Rocket Launcher starts with 10 reserve ammo
+        addWeapon(new Weapon("Knife", 80, 0, 30, 0, 0.3, 0, 0)); // Knife has no ammo
     }
 
     public void addWeapon(Weapon weapon) {
