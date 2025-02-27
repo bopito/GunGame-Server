@@ -93,7 +93,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
             switch (action) {
                 //player weapon action
-                case "pick_weapon":
+                case "equip_weapon":
                     String weaponId = (String) data.get("weaponId");
                     gameEngine.queueWeaponPickup(player, weaponId);
                     break;
