@@ -103,4 +103,8 @@ public class GameEngine {
         eventQueue.add(player::shootBullet);
     }
 
+    public void queuePlayerReload(Player player) {
+        eventQueue.add(player::reloadBullet);
+    }
+
 }

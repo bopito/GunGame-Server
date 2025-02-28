@@ -34,6 +34,15 @@ public class WeaponHandler {
         }
     }
 
+    public void reloadWeapon(Player player){
+        Weapon weapon = player.getCurrentWeapon();
+        if (weapon == null) {
+            System.out.println("[Weapon] No weapon equipped!");
+            return;
+        }
+        weapon.reload();
+    }
+
     /**
      * Picks up a dropped weapon from the map.
      */
