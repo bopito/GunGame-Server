@@ -78,6 +78,9 @@ public class Player extends Entity {
     public void shootBullet() {
         weaponManager.shootBullet();
     }
+    public void reloadBullet() {
+        weaponManager.reloadBullet();
+    }
 
     public void useSkill(int skillIndex) {
         skillManager.useSkill(skillIndex);

@@ -103,7 +103,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
                     break;
 
                 case "reload":
-                    System.out.println("player reload logic");
+                    gameEngine.queuePlayerReload(player);
                     break;
 
                 //player skill actoin
@@ -118,7 +118,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
                 //none action
                 default:
-                    System.out.println("[WebSocket] Unknown action: " + action);
                     break;
             }
         } catch (Exception e) {

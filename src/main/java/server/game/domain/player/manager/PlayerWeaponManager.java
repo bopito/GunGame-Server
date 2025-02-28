@@ -36,6 +36,9 @@ public class PlayerWeaponManager {
     public void shootBullet() {
         weaponHandler.shootWeapon(player);
     }
+    public void reloadBullet() {
+        weaponHandler.reloadWeapon(player);
+    }
 
     /**
      * Allows the player to pick up a weapon from the ground.
