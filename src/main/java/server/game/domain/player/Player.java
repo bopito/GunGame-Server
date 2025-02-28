@@ -50,14 +50,12 @@ public class Player extends Entity {
         this.speed = 1;
         this.keys = Map.of("w", false, "a", false, "s", false, "d", false);
 
-        // ✅ 이제 SkillHandler는 Player가 직접 넘겨주지 않고 PlayerSkillManager에서 생성
         this.skillManager = new PlayerSkillManager(this, skills);
-
-        // Initialize managers and handlers
         this.healthManager = new PlayerHealthManager(this);
         this.weaponManager = new PlayerWeaponManager(this);
         this.movementHandler = new PlayerMovementHandler(this);
         this.collisionHandler = new PlayerCollisionHandler(this);
+        this.currentWeapon = weaponManager.getDefaultWeapon();
     }
 
     @Override

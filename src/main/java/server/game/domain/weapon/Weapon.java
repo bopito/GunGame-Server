@@ -17,13 +17,14 @@ public class Weapon {
     private final double reloadTime;
     private final double rateOfFire;
     private final int range;
-    private final int maxAmmo;
-    private int currentAmmo;
+    private final int maxAmmo; // Magazine capacity
+    private int currentAmmo; // Bullets in the current magazine
+    private int reserveAmmo; // Total available bullets in reserve
 
     /**
      * Initializes a new weapon.
      */
-    public Weapon(String name, int damage, double bulletSpeed, int range, double reloadTime, double rateOfFire, int maxAmmo) {
+    public Weapon(String name, int damage, double bulletSpeed, int range, double reloadTime, double rateOfFire, int maxAmmo, int reserveAmmo) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.damage = damage;
@@ -33,20 +34,47 @@ public class Weapon {
         this.rateOfFire = rateOfFire;
         this.maxAmmo = maxAmmo;
         this.currentAmmo = maxAmmo;
+        this.reserveAmmo = reserveAmmo;
     }
 
     /**
-     * Checks if the weapon can shoot.
+     * Check if the weapon can fire.
      */
     public boolean canShoot() {
         return currentAmmo > 0;
     }
 
     /**
-     * Reloads the weapon.
+     * Reload the weapon.
      */
     public void reload() {
-        this.currentAmmo = maxAmmo;
-        System.out.println("[Weapon] " + name + " reloaded!");
+        if (reserveAmmo <= 0) {
+            System.out.println("[Weapon] " + name + " cannot reload - no reserve ammo left!");
+            return;
+        }
+
+        int neededAmmo = maxAmmo - currentAmmo; // Bullets needed to fill the magazine
+
+        if (reserveAmmo >= neededAmmo) {
+            currentAmmo += neededAmmo;
+            reserveAmmo -= neededAmmo;
+        } else {
+            currentAmmo += reserveAmmo;
+            reserveAmmo = 0;
+        }
+
+        System.out.println("[Weapon] " + name + " reloaded: " + currentAmmo + "/" + reserveAmmo);
+    }
+
+    /**
+     * Fire a bullet from the weapon.
+     */
+    public void shoot() {
+        if (currentAmmo > 0) {
+            currentAmmo--;
+            System.out.println("[Weapon] " + name + " fired! Remaining ammo: " + currentAmmo + "/" + reserveAmmo);
+        } else {
+            System.out.println("[Weapon] No ammo left! Reload required.");
+        }
     }
 }
