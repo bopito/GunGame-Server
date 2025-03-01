@@ -56,4 +56,15 @@ public class WeaponManager {
     public List<Weapon> getDroppedWeapons() {
         return new ArrayList<>(droppedWeapons);
     }
+
+    public Weapon getWeaponByName(String name) {
+        for (Weapon weapon : weapons.values()) {
+            if (weapon.getName().equalsIgnoreCase(name)) {
+                return weapon;
+            }
+        }
+        System.err.println("[WeaponManager] Warning: Weapon not found for name: " + name);
+        return defaultWeapon; // ✅ Return default weapon if not found
+    }
+
 }

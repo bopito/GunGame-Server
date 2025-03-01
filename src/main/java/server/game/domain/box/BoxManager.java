@@ -2,6 +2,7 @@ package server.game.domain.box;
 
 import server.game.domain.weapon.Weapon;
 import server.game.domain.weapon.WeaponManager;
+import server.game.core.GameEngine;
 
 import java.util.*;
 
@@ -9,25 +10,31 @@ import java.util.*;
  * Manages box generation, destruction, and loot drop.
  */
 public class BoxManager {
+    private static List<WeaponDropChance> WEAPON_DROP_TABLE;
     private final List<Box> activeBoxes = new ArrayList<>();
     private final WeaponManager weaponManager;
+    private final GameEngine gameEngine;
     private static final Random random = new Random();
 
     // set map size
-    private static final int MAP_SIZE_X = 100;
-    private static final int MAP_SIZE_Z = 100;
+    private static final int MAP_SIZE_X = 50;
+    private static final int MAP_SIZE_Z = 50;
 
     // weapon percentage
-    private static final List<WeaponDropChance> WEAPON_DROP_TABLE = List.of(
-            new WeaponDropChance("Bucket (Pistol)", 40),
-            new WeaponDropChance("Basket (Rifle)", 30),
-            new WeaponDropChance("Backpack (Sniper)", 15),
-            new WeaponDropChance("Luggage (Rocket)", 10),
-            new WeaponDropChance("Toy Hammer (Knife)", 5)
-    );
+    private void initializeWeaponDropTable() {
+        WEAPON_DROP_TABLE = List.of(
+                new WeaponDropChance(weaponManager.getWeaponByName("Pistol"), 40),
+                new WeaponDropChance(weaponManager.getWeaponByName("Rifle"), 30),
+                new WeaponDropChance(weaponManager.getWeaponByName("Sniper"), 15),
+                new WeaponDropChance(weaponManager.getWeaponByName("Rocket Launcher"), 10),
+                new WeaponDropChance(weaponManager.getWeaponByName("Knife"), 5)
+        );
+    }
 
-    public BoxManager(WeaponManager weaponManager) {
+    public BoxManager(WeaponManager weaponManager, GameEngine gameEngine) {
         this.weaponManager = weaponManager;
+        this.gameEngine = gameEngine;
+        initializeWeaponDropTable(); // ✅ Initialize the weapon drop table
     }
 
     /**
@@ -35,7 +42,8 @@ public class BoxManager {
      */
     public Box spawnBox() {
         Weapon randomWeapon = getRandomWeaponByChance();
-        int randomHp = 50 + random.nextInt(50); // ✅ Box health between 50-100
+//        int randomHp = 50 + random.nextInt(50); // ✅ Box health between 50-100
+        int randomHp = 100; // ✅ Box health between 50-100
 
         // create box to random location
         double randomX = random.nextDouble() * MAP_SIZE_X;
@@ -43,6 +51,9 @@ public class BoxManager {
 
         Box newBox = new Box(randomHp, randomWeapon, randomX, randomZ);
         activeBoxes.add(newBox);
+
+        gameEngine.onBoxSpawned(newBox);
+
         System.out.println("[BoxManager] Spawned new box at (" + randomX + ", " + randomZ + ") with HP: " + randomHp + " containing: " + randomWeapon.getName());
         return newBox;
     }
@@ -72,26 +83,30 @@ public class BoxManager {
         for (WeaponDropChance drop : WEAPON_DROP_TABLE) {
             cumulativeChance += drop.getChance();
             if (roll < cumulativeChance) {
-                return weaponManager.getWeapon(drop.getWeaponName());
+                return drop.getWeapon();
             }
         }
-        return weaponManager.getWeapon("Bucket (Pistol)"); // 기본값
+
+        // basic weapon (prevent null)
+        System.err.println("[BoxManager] Warning: No weapon selected, assigning default weapon.");
+        return weaponManager.getDefaultWeapon();
     }
+
 
     /**
      * Helper class to store weapon drop chance.
      */
-    private static class WeaponDropChance {
-        private final String weaponName;
+    public class WeaponDropChance {
+        private final Weapon weapon;
         private final int chance;
 
-        public WeaponDropChance(String weaponName, int chance) {
-            this.weaponName = weaponName;
+        public WeaponDropChance(Weapon weapon, int chance) {
+            this.weapon = weapon;
             this.chance = chance;
         }
 
-        public String getWeaponName() {
-            return weaponName;
+        public Weapon getWeapon() {
+            return weapon;
         }
 
         public int getChance() {
