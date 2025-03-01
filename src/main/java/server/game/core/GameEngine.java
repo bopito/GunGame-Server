@@ -7,6 +7,9 @@ import java.util.concurrent.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import server.game.domain.box.Box;
+import server.game.domain.box.BoxManager;
+import server.game.domain.box.BoxSpawner;
 import server.game.domain.player.Player;
 import server.game.domain.player.PlayerManager;
 import server.game.domain.weapon.Weapon;
@@ -18,6 +21,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class GameEngine {
     private final PlayerManager playerManager;
     private final WeaponManager weaponManager;
+    private final BoxManager boxManager;
+    private final BoxSpawner boxSpawner;
+
     private final SessionManager sessionManager;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ScheduledExecutorService gameLoopExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -29,8 +35,13 @@ public class GameEngine {
         this.playerManager = playerManager;
         this.weaponManager = weaponManager;
         this.sessionManager = sessionManager;
+        this.boxManager = new BoxManager(weaponManager, this);
+        this.boxSpawner = new BoxSpawner(boxManager);
+        this.boxSpawner.startSpawning(); // 🛠 start auto creating box
+
         startGameLoop();
     }
+
 
     private void startGameLoop() {
         gameLoopExecutor.scheduleAtFixedRate(() -> {
@@ -58,6 +69,7 @@ public class GameEngine {
         broadcastGameState();
     }
 
+    //broadcast player status&weapon
     private void broadcastGameState() {
         try {
             Map<String, Object> entities = Map.of(
@@ -81,6 +93,37 @@ public class GameEngine {
             e.printStackTrace();
         }
     }
+
+    //broadcast box
+    private void broadcastBoxSpawn(Box box) {
+        try {
+            Map<String, Object> message = Map.of(
+                    "type", "box_spawn",
+                    "x", box.getX(),
+                    "z", box.getZ(),
+                    "weapon", box.getDroppedWeapon(),
+                    "hp", box.getHp()
+            );
+            String jsonMessage = objectMapper.writeValueAsString(message);
+
+            for (WebSocketSession session : sessionManager.getSessions()) {
+                if (session.isOpen()) {
+                    synchronized (session) {
+                        session.sendMessage(new TextMessage(jsonMessage));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[GameEngine] Error broadcasting box spawn: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void onBoxSpawned(Box box) {
+        broadcastBoxSpawn(box);
+    }
+
+
 
     /**
      * Queue a weapon pickup request.

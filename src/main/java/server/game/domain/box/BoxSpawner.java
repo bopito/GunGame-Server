@@ -23,8 +23,8 @@ public class BoxSpawner {
     public void startSpawning() {
         scheduler.scheduleAtFixedRate(() -> {
             boxManager.spawnBox();
-            int nextDelay = 6 + random.nextInt(3); // 6~8초 랜덤
+            int nextDelay = 30 + random.nextInt(10); // random 30~40 seconds
             System.out.println("[BoxSpawner] Next box will spawn in " + nextDelay + " seconds.");
-        }, 0, 6 + random.nextInt(3), TimeUnit.SECONDS);
+        }, 0, 30 + random.nextInt(10), TimeUnit.SECONDS);
     }
 }
