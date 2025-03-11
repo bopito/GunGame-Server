@@ -19,6 +19,7 @@ public class BoxManager {
     // set map size
     private static final int MAP_SIZE_X = 50;
     private static final int MAP_SIZE_Z = 50;
+    private static final int MAX_BOXES = 5;
 
     // weapon percentage
     private void initializeWeaponDropTable() {
@@ -41,6 +42,11 @@ public class BoxManager {
      * Spawns a new box at a random position with random HP and a random weapon.
      */
     public Box spawnBox() {
+        if (activeBoxes.size() >= MAX_BOXES) {
+            System.out.println("[BoxManager] Maximum number of boxes reached. No new box will be spawned.");
+            return null; // ✅ Prevent spawning more than MAX_BOXES
+        }
+
         Weapon randomWeapon = getRandomWeaponByChance();
 //        int randomHp = 50 + random.nextInt(50); // ✅ Box health between 50-100
         int randomHp = 100; // ✅ Box health between 50-100
@@ -92,6 +98,12 @@ public class BoxManager {
         return weaponManager.getDefaultWeapon();
     }
 
+    /**
+     * Returns the current number of active boxes.
+     */
+    public int getActiveBoxCount() {
+        return activeBoxes.size();
+    }
 
     /**
      * Helper class to store weapon drop chance.

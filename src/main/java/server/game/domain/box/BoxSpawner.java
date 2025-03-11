@@ -22,8 +22,13 @@ public class BoxSpawner {
      */
     public void startSpawning() {
         scheduler.scheduleAtFixedRate(() -> {
-            boxManager.spawnBox();
-            int nextDelay = 30 + random.nextInt(10); // random 30~40 seconds
+            if (boxManager.getActiveBoxCount() < 5) { // ✅ Check if there is room for new boxes
+                boxManager.spawnBox();
+            } else {
+                System.out.println("[BoxSpawner] Maximum number of boxes reached. No new box will be spawned.");
+            }
+
+            int nextDelay = 30 + random.nextInt(10); // Random spawn time between 30-40 seconds
             System.out.println("[BoxSpawner] Next box will spawn in " + nextDelay + " seconds.");
         }, 0, 30 + random.nextInt(10), TimeUnit.SECONDS);
     }
