@@ -1,5 +1,6 @@
 package server.game.domain.weapon.handler;
 
+import server.game.domain.bullet.Bullet;
 import server.game.domain.weapon.Weapon;
 import server.game.domain.weapon.WeaponManager;
 import server.game.domain.player.Player;
@@ -19,19 +20,29 @@ public class WeaponHandler {
     /**
      * Fires a bullet from the player's current weapon.
      */
-    public void shootWeapon(Player player) {
+    public Bullet shootWeapon(Player player) {
         Weapon weapon = player.getCurrentWeapon();
         if (weapon == null) {
             System.out.println("[Weapon] No weapon equipped!");
-            return;
+            return null;
         }
 
-        if (weapon.canShoot()) {
-            weapon.setCurrentAmmo(weapon.getCurrentAmmo() - 1);
-            System.out.println("[Weapon] " + player.getId() + " fired a bullet with " + weapon.getName());
-        } else {
+        if (!weapon.canShoot()) {
             System.out.println("[Weapon] Out of ammo! Reload required.");
+            return null;
         }
+
+        weapon.setCurrentAmmo(weapon.getCurrentAmmo() - 1);
+        System.out.println("[Weapon] " + player.getId() + " fired a bullet with " + weapon.getName());
+
+        // Retrieve player position and direction
+        double x = player.getX();
+        double y = player.getY();
+        double z = player.getZ();
+        double angle = player.getAngle();
+
+        // Create and return bullet
+        return new Bullet(x, y, z, angle, weapon.getBulletSpeed(), weapon.getDamage(), player.getId(), weapon.getRange());
     }
 
     public void reloadWeapon(Player player){
@@ -54,7 +65,7 @@ public class WeaponHandler {
 
         Optional<Weapon> droppedWeapon = Optional.ofNullable(player.getCurrentWeapon());
         player.setCurrentWeapon(weapon);
-        weaponManager.removeDroppedWeapon(weapon); // ✅ 맵에서 무기 제거
+        weaponManager.removeDroppedWeapon(weapon); // Remove weapon from the map
         System.out.println("[WeaponHandler] " + player.getId() + " picked up " + weapon.getName());
 
         return droppedWeapon;
