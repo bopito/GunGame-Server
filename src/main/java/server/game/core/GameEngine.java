@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -23,25 +24,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class GameEngine {
     private final PlayerManager playerManager;
     private final WeaponManager weaponManager;
-    private final BoxManager boxManager;
     private final BoxSpawner boxSpawner;
 
     private final SessionManager sessionManager;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ScheduledExecutorService gameLoopExecutor = Executors.newSingleThreadScheduledExecutor();
+    private boolean isSpawningEnabled = false; // ✅ Track if spawning should start
+
 
     // Event queue for handling weapon pickup and shooting requests
     private final Queue<Runnable> eventQueue = new ConcurrentLinkedQueue<>();
     // List to track bullets
     private final List<Bullet> bullets = new CopyOnWriteArrayList<>();
 
-    public GameEngine(PlayerManager playerManager, WeaponManager weaponManager, SessionManager sessionManager) {
+    @Autowired
+    public GameEngine(PlayerManager playerManager, WeaponManager weaponManager, SessionManager sessionManager, BoxSpawner boxSpawner) {
         this.playerManager = playerManager;
         this.weaponManager = weaponManager;
         this.sessionManager = sessionManager;
-        this.boxManager = new BoxManager(weaponManager, this);
-        this.boxSpawner = new BoxSpawner(boxManager);
-        this.boxSpawner.startSpawning(); // 🛠 start auto creating box
+        this.boxSpawner = boxSpawner;
+
+        // add BoxSpawner listener
+        this.boxSpawner.setBoxSpawnListener(this::broadcastBoxSpawn);
 
         startGameLoop();
     }
@@ -165,8 +169,26 @@ public class GameEngine {
         }
     }
 
-    public void onBoxSpawned(Box box) {
-        broadcastBoxSpawn(box);
+    /**
+     * Called when a new player joins the game.
+     */
+    public void onPlayerJoined() {
+        if (!isSpawningEnabled) { // ✅ Start spawning only once
+            isSpawningEnabled = true;
+            boxSpawner.startSpawning(); // ✅ Start spawning when the first player connects
+            System.out.println("[GameEngine] First player joined, starting box spawning...");
+        }
+    }
+
+    /**
+     * Called when a player leaves the game.
+     */
+    public void onPlayerLeft() {
+        if (sessionManager.getSessions().isEmpty()) { // ✅ Stop spawning when no players are online
+            isSpawningEnabled = false;
+            boxSpawner.stopSpawning(); // ✅ Stop spawning if no players remain
+            System.out.println("[GameEngine] No players left, stopping box spawning...");
+        }
     }
 
 

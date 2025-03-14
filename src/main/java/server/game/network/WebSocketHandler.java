@@ -10,6 +10,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 
+import server.game.domain.box.Box;
+import server.game.domain.box.BoxManager;
 import server.game.domain.player.Player;
 import server.game.domain.player.PlayerManager;
 import server.game.domain.skill.Skill;
@@ -23,11 +25,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private final PlayerManager playerManager;
     private final ObjectMapper objectMapper = new ObjectMapper(); // JSON serialization
     private final GameEngine gameEngine;
+    private final BoxManager boxManager;
 
-    public WebSocketHandler(SessionManager sessionManager, PlayerManager playerManager, GameEngine gameEngine) {
+    public WebSocketHandler(SessionManager sessionManager, PlayerManager playerManager, GameEngine gameEngine, BoxManager boxManager) {
         this.sessionManager = sessionManager;
         this.playerManager = playerManager;
         this.gameEngine = gameEngine;
+        this.boxManager = boxManager;
     }
 
     @Override
@@ -56,6 +60,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         // Store the player ID with the session
         sessionManager.addSession(newPlayer.getId(), session);
+        gameEngine.onPlayerJoined(); // ✅ Notify GameEngine that a player has joined
 
         // Send player ID to the client
         try {
@@ -65,11 +70,40 @@ public class WebSocketHandler extends TextWebSocketHandler {
                     "equippedWeapon", newPlayer.getCurrentWeapon().getName()
             );
             String json = objectMapper.writeValueAsString(response);
-            session.sendMessage(new TextMessage(json));
+
+            synchronized (session){
+                session.sendMessage(new TextMessage(json));
+            }
 
             System.out.println("[WebSocket] Assigned player ID: " + newPlayer.getId());
             System.out.println("[WebSocket] Assigned default weapon: " + newPlayer.getCurrentWeapon().getName());
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            List<Box> existingBoxes = boxManager.getActiveBoxes();
+            System.out.println("[WebSocket] Sending existing boxes. Count: " + existingBoxes.size());
+
+            for (Box box : existingBoxes) {
+                Map<String, Object> boxData = Map.of(
+                        "type", "box_spawn",
+                        "x", box.getX(),
+                        "z", box.getZ(),
+                        "weapon", box.getDroppedWeapon(),
+                        "hp", box.getHp()
+                );
+                String jsonMessage = objectMapper.writeValueAsString(boxData);
+
+                synchronized (session){
+                    session.sendMessage(new TextMessage(jsonMessage));
+                }
+
+                System.out.println("[WebSocket] Sent box: " + jsonMessage);
+
+            }
+        } catch (Exception e) {
+            System.err.println("[WebSocket] Error sending existing boxes: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -140,5 +174,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
         } else {
             System.err.println("[WebSocket] No player found for session: " + session.getId());
         }
+
+        gameEngine.onPlayerLeft(); // ✅ Notify GameEngine when a player leaves
+
     }
 }
