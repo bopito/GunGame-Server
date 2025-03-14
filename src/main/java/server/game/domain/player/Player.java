@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import server.game.base.entity.Entity;
+import server.game.domain.bullet.Bullet;
 import server.game.domain.player.handler.PlayerCollisionHandler;
 import server.game.domain.player.handler.PlayerMovementHandler;
 import server.game.domain.weapon.Weapon;
@@ -75,8 +76,8 @@ public class Player extends Entity {
         weaponManager.equipWeapon(weapon);
     }
 
-    public void shootBullet() {
-        weaponManager.shootBullet();
+    public Bullet shootBullet() {
+        return weaponManager.shootBullet();
     }
     public void reloadBullet() {
         weaponManager.reloadBullet();

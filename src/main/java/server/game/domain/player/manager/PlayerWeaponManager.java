@@ -1,5 +1,6 @@
 package server.game.domain.player.manager;
 
+import server.game.domain.bullet.Bullet;
 import server.game.domain.player.Player;
 import server.game.domain.weapon.Weapon;
 import server.game.domain.weapon.handler.WeaponHandler;
@@ -33,8 +34,8 @@ public class PlayerWeaponManager {
     /**
      * Shoots the player's current weapon.
      */
-    public void shootBullet() {
-        weaponHandler.shootWeapon(player);
+    public Bullet shootBullet() {
+        return weaponHandler.shootWeapon(player);
     }
     public void reloadBullet() {
         weaponHandler.reloadWeapon(player);

@@ -11,11 +11,12 @@ public abstract class Projectile extends Entity {
     protected double speed;
     protected int damage;
     protected String shooterId;
+    protected double range; // Maximum range the bullet can travel
 
     /**
      * Initializes a new projectile.
      */
-    public Projectile(double x, double y, double z, double angle, double speed, int damage, String shooterId) {
+    public Projectile(double x, double y, double z, double angle, double speed, int damage, String shooterId, double range) {
         super(); // Call Entity constructor
         this.x = x;
         this.y = y;
@@ -24,6 +25,7 @@ public abstract class Projectile extends Entity {
         this.speed = speed;
         this.damage = damage;
         this.shooterId = shooterId;
+        this.range = range;
     }
 
     @Override

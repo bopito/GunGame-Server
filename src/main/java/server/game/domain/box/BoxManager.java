@@ -1,24 +1,25 @@
 package server.game.domain.box;
 
+import org.springframework.stereotype.Component;
 import server.game.domain.weapon.Weapon;
 import server.game.domain.weapon.WeaponManager;
-import server.game.core.GameEngine;
 
 import java.util.*;
 
 /**
  * Manages box generation, destruction, and loot drop.
  */
+@Component
 public class BoxManager {
     private static List<WeaponDropChance> WEAPON_DROP_TABLE;
     private final List<Box> activeBoxes = new ArrayList<>();
     private final WeaponManager weaponManager;
-    private final GameEngine gameEngine;
     private static final Random random = new Random();
 
     // set map size
     private static final int MAP_SIZE_X = 50;
     private static final int MAP_SIZE_Z = 50;
+    private static final int MAX_BOXES = 5;
 
     // weapon percentage
     private void initializeWeaponDropTable() {
@@ -31,19 +32,23 @@ public class BoxManager {
         );
     }
 
-    public BoxManager(WeaponManager weaponManager, GameEngine gameEngine) {
+    public BoxManager(WeaponManager weaponManager) {
         this.weaponManager = weaponManager;
-        this.gameEngine = gameEngine;
-        initializeWeaponDropTable(); // ✅ Initialize the weapon drop table
+        initializeWeaponDropTable(); // Initialize the weapon drop table
     }
 
     /**
      * Spawns a new box at a random position with random HP and a random weapon.
      */
     public Box spawnBox() {
+        if (activeBoxes.size() >= MAX_BOXES) {
+            System.out.println("[BoxManager] Maximum number of boxes reached. No new box will be spawned.");
+            return null; // Prevent spawning more than MAX_BOXES
+        }
+
         Weapon randomWeapon = getRandomWeaponByChance();
-//        int randomHp = 50 + random.nextInt(50); // ✅ Box health between 50-100
-        int randomHp = 100; // ✅ Box health between 50-100
+//        int randomHp = 50 + random.nextInt(50); // Box health between 50-100
+        int randomHp = 100;
 
         // create box to random location
         double randomX = random.nextDouble() * MAP_SIZE_X;
@@ -52,9 +57,8 @@ public class BoxManager {
         Box newBox = new Box(randomHp, randomWeapon, randomX, randomZ);
         activeBoxes.add(newBox);
 
-        gameEngine.onBoxSpawned(newBox);
-
         System.out.println("[BoxManager] Spawned new box at (" + randomX + ", " + randomZ + ") with HP: " + randomHp + " containing: " + randomWeapon.getName());
+
         return newBox;
     }
 
@@ -92,6 +96,19 @@ public class BoxManager {
         return weaponManager.getDefaultWeapon();
     }
 
+    /**
+     * Returns the current number of active boxes.
+     */
+    public int getActiveBoxCount() {
+        return activeBoxes.size();
+    }
+
+    /**
+     * Returns the list of currently active boxes.
+     */
+    public List<Box> getActiveBoxes() {
+        return new ArrayList<>(activeBoxes); // Return a copy to prevent external modification
+    }
 
     /**
      * Helper class to store weapon drop chance.

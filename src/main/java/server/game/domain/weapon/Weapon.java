@@ -65,16 +65,4 @@ public class Weapon {
 
         System.out.println("[Weapon] " + name + " reloaded: " + currentAmmo + "/" + reserveAmmo);
     }
-
-    /**
-     * Fire a bullet from the weapon.
-     */
-    public void shoot() {
-        if (currentAmmo > 0) {
-            currentAmmo--;
-            System.out.println("[Weapon] " + name + " fired! Remaining ammo: " + currentAmmo + "/" + reserveAmmo);
-        } else {
-            System.out.println("[Weapon] No ammo left! Reload required.");
-        }
-    }
 }
