@@ -12,6 +12,7 @@ public abstract class Projectile extends Entity {
     protected int damage;
     protected String shooterId;
     protected double range; // Maximum range the bullet can travel
+    protected boolean active;
 
     /**
      * Initializes a new projectile.
@@ -33,5 +34,9 @@ public abstract class Projectile extends Entity {
         double radians = Math.toRadians(angle);
         this.x += speed * Math.cos(radians);
         this.z += speed * Math.sin(radians);
+    }
+
+    public void setActive(boolean active){
+        this.active = active;
     }
 }

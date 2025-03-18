@@ -19,12 +19,13 @@ public class Bullet extends Projectile {
         if (!isActive) return;
 
         // Calculate movement distance
-        double dx = Math.cos(angle) * speed;
-        double dy = Math.sin(angle) * speed;
+        double radians = Math.toRadians(angle);
+        double dx = Math.cos(radians) * speed;
+        double dz = Math.sin(radians) * speed;
 
         this.x += dx;
-        this.y += dy;
-        traveledDistance += Math.sqrt(dx * dx + dy * dy);
+        this.z += dz;
+        traveledDistance += Math.sqrt(dx * dx + dz * dz);
 
         // Check for collision (e.g., player, box)
         if (checkCollision()) {

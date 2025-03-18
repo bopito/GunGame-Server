@@ -1,6 +1,8 @@
 package server.game.domain.player;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,9 @@ public class PlayerManager {
 
     public void removePlayer(String playerId) {
         players.remove(playerId);
+    }
+    public List<Player> getPlayersList() {
+        return new ArrayList<>(players.values());
     }
 
     public Collection<Player> getPlayers() {

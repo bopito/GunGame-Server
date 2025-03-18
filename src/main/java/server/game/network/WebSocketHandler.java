@@ -53,7 +53,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         // Ensure the player is not already in the manager
         if (playerManager.getPlayer(newPlayer.getId()) == null) {
-            playerManager.addPlayer(newPlayer);
+            gameEngine.addPlayerToGame(newPlayer); // ✅ 새로운 플레이어 추가
         } else {
             System.err.println("[WebSocket] Duplicate player ID detected: " + newPlayer.getId());
         }

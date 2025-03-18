@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import server.game.collision.CollisionManager;
 import server.game.domain.box.Box;
 import server.game.domain.box.BoxManager;
 import server.game.domain.box.BoxSpawner;
@@ -25,8 +26,10 @@ public class GameEngine {
     private final PlayerManager playerManager;
     private final WeaponManager weaponManager;
     private final BoxSpawner boxSpawner;
-
+    private final BoxManager boxManager;
     private final SessionManager sessionManager;
+    private CollisionManager collisionManager;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ScheduledExecutorService gameLoopExecutor = Executors.newSingleThreadScheduledExecutor();
     private boolean isSpawningEnabled = false; // ✅ Track if spawning should start
@@ -38,14 +41,18 @@ public class GameEngine {
     private final List<Bullet> bullets = new CopyOnWriteArrayList<>();
 
     @Autowired
-    public GameEngine(PlayerManager playerManager, WeaponManager weaponManager, SessionManager sessionManager, BoxSpawner boxSpawner) {
+    public GameEngine(PlayerManager playerManager, WeaponManager weaponManager, SessionManager sessionManager, BoxSpawner boxSpawner, BoxManager boxManager, List<Box> boxes, List<Bullet> bullets) {
         this.playerManager = playerManager;
         this.weaponManager = weaponManager;
         this.sessionManager = sessionManager;
         this.boxSpawner = boxSpawner;
+        this.boxManager = boxManager;
 
         // add BoxSpawner listener
         this.boxSpawner.setBoxSpawnListener(this::broadcastBoxSpawn);
+
+        // ✅ 추가된 부분: CollisionManager 생성
+        this.collisionManager = new CollisionManager(playerManager.getPlayersList(), boxes, bullets);
 
         startGameLoop();
     }
@@ -74,6 +81,7 @@ public class GameEngine {
 
     private void updateGame() {
         playerManager.updatePlayers();
+        collisionManager.updateCollisions(); // ✅ 추가: 매 프레임 충돌 검사 실행
         updateBullets();
         broadcastGameState();
     }
@@ -227,5 +235,14 @@ public class GameEngine {
     public void queuePlayerReload(Player player) {
         eventQueue.add(player::reloadBullet);
     }
+
+    public void addPlayerToGame(Player player) {
+        playerManager.addPlayer(player);
+        System.out.println("[DEBUG] Player added to game. Updating CollisionManager...");
+
+        // ✅ 플레이어가 추가될 때 CollisionManager 갱신
+        this.collisionManager = new CollisionManager(playerManager.getPlayersList(), boxManager.getActiveBoxes(), bullets);
+    }
+
 
 }
