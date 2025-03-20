@@ -13,7 +13,7 @@ public class Bullet extends Projectile {
     }
 
     /**
-     * Updates the bullet's position and checks for collision or range limit.
+     * Updates the bullet's position and range check.
      */
     public void update() {
         if (!isActive) return;
@@ -27,29 +27,10 @@ public class Bullet extends Projectile {
         this.z += dz;
         traveledDistance += Math.sqrt(dx * dx + dz * dz);
 
-        // Check for collision (e.g., player, box)
-        if (checkCollision()) {
-            isActive = false;
-            System.out.println("[Bullet] Bullet hit an object and is now inactive.");
-            return;
-        }
-
         // Disable bullet if it exceeds its range
         if (traveledDistance >= range) {
             isActive = false;
             System.out.println("[Bullet] Bullet reached max range and disappeared.");
         }
-    }
-
-    /**
-     * Checks if the bullet collides with an object.
-     */
-    private boolean checkCollision() {
-        // Collision detection logic (to be implemented)
-        return false;
-    }
-
-    public boolean isActive() {
-        return isActive;
     }
 }
